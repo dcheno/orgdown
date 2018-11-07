@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ParagraphType(Enum):
+    NONE = 'None'
     PART = 'Part'
     PROLOGUE = 'Prologue'
     CHAPTER = 'Chapter'

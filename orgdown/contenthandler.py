@@ -22,27 +22,26 @@ def transform_content(source_file, content_file):
     Takes unprocessed text from a source file, parses it for special
     markdown and then writes it to the content file.
     """
-
+    previous_paragraph_type = ParagraphType.NONE
     for line in source_file:
-        new_line = _transform_line(line)
-        print(new_line)
+        paragraph = _get_paragraph(line, previous_paragraph_type)
+        new_line = paragraph.getXml()
         content_file.write(new_line)
+        previous_paragraph_type = paragraph.get_type()
 
 
-def _transform_line(line):
+def _get_paragraph(line, previous_paragraph_type):
     """
-    Takes a line of text and returns the processed line.
+    Takes a line of text and returns the processed line. Requires
+    the prevoius paragraph type,  which might be an interface break.
     """
     paragraph_type = _check_paragraph_type(line)
-
+    line = line.strip()
     line = line.rstrip('\n')
     if paragraph_type != ParagraphType.NORMAL:
         line = line.split(' ', 1)[1]
-    print(paragraph_type)
-    print(line)
-    paragraph = Paragraph(paragraph_type, line)
-    new_line = paragraph.getXml()
-    return new_line
+    paragraph = Paragraph(paragraph_type, line, previous_paragraph_type)
+    return paragraph
 
 
 def _check_paragraph_type(line):
