@@ -10,11 +10,9 @@ PARAGRAPH_TYPE_INDICATORS = {
 
 SECONDARY_TYPE_INDICATORS = {
     "PROLOGUE": ParagraphType.PROLOGUE,
-    "PART ENDER": ParagraphType.PART_ENDER,
+    "PART_ENDER": ParagraphType.PART_ENDER,
     "EPILOGUE": ParagraphType.EPILOGUE
 }
-
-SCENE_BREAK_CHARACTER = "*"
 
 
 def transform_content(source_file, content_file):
@@ -41,11 +39,15 @@ def _get_paragraph(line, previous_paragraph_type):
     if paragraph_type != ParagraphType.NORMAL:
         line = line.split(' ', 1)[1]
     paragraph = Paragraph(paragraph_type, line, previous_paragraph_type)
+
+    print(line)
+    print(paragraph_type)
+    print(previous_paragraph_type)
     return paragraph
 
 
 def _check_paragraph_type(line):
-    indicator = line.split(' ')[0]
+    indicator = line.split(' ', 1)[0]
 
     paragraph_type = PARAGRAPH_TYPE_INDICATORS.get(
         indicator,
@@ -54,7 +56,7 @@ def _check_paragraph_type(line):
 
     # Special Cases
     if paragraph_type == ParagraphType.CHAPTER:
-        secondary_indicator = line.split(' ')[1]
+        secondary_indicator = line.split(' ', 2)[1]
         paragraph_type = SECONDARY_TYPE_INDICATORS.get(
             secondary_indicator,
             ParagraphType.CHAPTER)

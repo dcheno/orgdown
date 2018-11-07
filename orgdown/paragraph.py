@@ -1,7 +1,7 @@
 from paragraph_type import ParagraphType
 from xmlobject import XmlObject
 
-SCENE_BREAK_CHARACTER = "*"
+SCENE_BREAK_CHARACTER = "#"
 ONE_THIRD_PAGE = 12
 STANDARD_BUFFER = 2
 
@@ -63,7 +63,14 @@ INDENT = [
 
 class Paragraph:
     def __init__(self, paragraph_type, line, previous_paragraph_type):
-        self._text = line
+        self._display_xml = True
+        if paragraph_type != ParagraphType.SCENE:
+            self._text = line
+        else:
+            self._text = SCENE_BREAK_CHARACTER
+            if previous_paragraph_type != ParagraphType.NORMAL:
+                self._display_xml = False
+
         self._paragraph_type = paragraph_type
         self._previous_paragraph_type = previous_paragraph_type
 
@@ -76,6 +83,12 @@ class Paragraph:
         return self._paragraph_type
 
     def getXml(self):
+
+        # Special Case where the line does not represent any
+        # displayable text.
+        if self._display_xml == False:
+            return ''
+
         xmlObject = XmlObject(self._text)
         if self._paragraph_type in CENTERED:
             xmlObject.center()
@@ -94,11 +107,19 @@ class Paragraph:
             xmlObject.post_page_break()
 
         if self._paragraph_type in BUFFER_SPACES:
-            xmlObject.set_pre_buffer(BUFFER_SPACES[self._paragraph_type])
-            xmlObject.set_post_buffer(BUFFER_SPACES[self._paragraph_type])
+            previous_buffer = BUFFER_SPACES.get(
+                self._previous_paragraph_type, 0)
+            def_pre_buffer = BUFFER_SPACES[self._paragraph_type]
+            print(previous_buffer)
+            print(def_pre_buffer)
+            pre_buffer = max(def_pre_buffer - previous_buffer, 0)
+            print(pre_buffer)
+            xmlObject.set_pre_buffer(pre_buffer)
+
+            xmlObject.set_post_buffer(def_pre_buffer)
 
         if self._paragraph_type in HIDE_TITLE:
-            xmlObject.removeText()
+            xmlObject.remove_text()
 
         if self._paragraph_type in INDENT:
             xmlObject.indent()
